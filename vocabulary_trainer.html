@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entraîneur de Vocabulaire Anglais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Quiz Section */
+        .quiz-section {
+            text-align: center;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .direction-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .direction-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-text {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+        }
+
+        .quiz-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .score {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .score-item {
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .correct { color: #28a745; }
+        .incorrect { color: #dc3545; }
+
+        /* Add Word Section */
+        .add-word-section {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .word-list {
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .word-item:hover {
+            background: #e9ecef;
+        }
+
+        .word-pair {
+            flex: 1;
+        }
+
+        .word-en {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .word-fr {
+            color: #666;
+            font-style: italic;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .flip-animation {
+            animation: flip 0.6s ease-in-out;
+        }
+
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(90deg); }
+            100% { transform: rotateY(0); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card-text {
+                font-size: 1.5rem;
+            }
+            
+            .quiz-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .score {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Vocabulaire Anglais</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('quiz')">Quiz</button>
+            <button class="tab" onclick="showTab('add-word')">Ajouter des mots</button>
+        </div>
+
+        <div id="quiz" class="tab-content active">
+            <div class="quiz-section">
+                <div class="quiz-controls">
+                    <button class="direction-btn active" onclick="setDirection('en-fr')">Anglais → Français</button>
+                    <button class="direction-btn" onclick="setDirection('fr-en')">Français → Anglais</button>
+                    <button class="btn btn-secondary" onclick="resetQuiz()">Nouveau Quiz</button>
+                </div>
+
+                <div class="score">
+                    <div class="score-item correct">✓ Correct: <span id="correct-count">0</span></div>
+                    <div class="score-item incorrect">✗ Incorrect: <span id="incorrect-count">0</span></div>
+                    <div class="score-item">Total: <span id="total-count">0</span></div>
+                </div>
+
+                <div class="card" id="quiz-card" onclick="revealAnswer()">
+                    <div class="card-text" id="card-text">Cliquez pour commencer !</div>
+                </div>
+
+                <div class="quiz-buttons" id="quiz-buttons" style="display: none;">
+                    <button class="btn btn-success" onclick="markCorrect()">✓ Correct</button>
+                    <button class="btn btn-danger" onclick="markIncorrect()">✗ Incorrect</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Suivant</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="add-word" class="tab-content">
+            <div class="add-word-section">
+                <div id="success-message" class="success-message" style="display: none;">
+                    Mot ajouté avec succès !
+                </div>
+                
+                <div class="form-group">
+                    <label for="english-word">Mot en anglais :</label>
+                    <input type="text" id="english-word" placeholder="Ex: ghost">
+                </div>
+                
+                <div class="form-group">
+                    <label for="french-word">Traduction en français :</label>
+                    <input type="text" id="french-word" placeholder="Ex: fantôme">
+                </div>
+                
+                <button class="btn btn-primary" onclick="addWord()" style="width: 100%;">Ajouter le mot</button>
+                
+                <div class="word-list">
+                    <h3>Mots ajoutés :</h3>
+                    <div id="custom-words-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vocabulaire initial depuis le document
+        let vocabulary = [
+            {en: "damned", fr: "damné, maudit"},
+            {en: "ghost", fr: "fantôme"},
+            {en: "usual", fr: "habituel"},
+            {en: "unusual", fr: "inhabituel"},
+            {en: "moon", fr: "lune"},
+            {en: "full", fr: "plein"},
+            {en: "empty", fr: "vide"},
+            {en: "full moon", fr: "pleine lune"},
+            {en: "to head for", fr: "se diriger vers"},
+            {en: "straight", fr: "droit"},
+            {en: "to stand straight", fr: "se tenir droit"},
+            {en: "to remember", fr: "se souvenir"},
+            {en: "robin", fr: "rouge gorge"},
+            {en: "lousy", fr: "nul, minable"},
+            {en: "booth", fr: "cabane"},
+            {en: "cufflink", fr: "bouton de manchette"},
+            {en: "both", fr: "les deux"},
+            {en: "memory", fr: "souvenir"},
+            {en: "diamond", fr: "diamant"},
+            {en: "rust", fr: "rouille"},
+            {en: "to burst", fr: "éclater"},
+            {en: "already", fr: "déjà"},
+            {en: "to stray", fr: "s'égarer, errer, vagabonder"},
+            {en: "shell", fr: "coquille, carapace"},
+            {en: "unharmed", fr: "indemne, sain et sauf, intact"},
+            {en: "leaf", fr: "feuille"},
+            {en: "leaves", fr: "feuilles"},
+            {en: "snow", fr: "neige"},
+            {en: "crummy", fr: "minable, miteux"},
+            {en: "breath", fr: "respiration"},
+            {en: "to breathe", fr: "respirer"},
+            {en: "cloud", fr: "nuage"},
+            {en: "to mingle", fr: "se mélanger"},
+            {en: "vagueness", fr: "imprécision, flou, vague"},
+            {en: "clearly", fr: "clairement"},
+            {en: "dearly", fr: "profondément, énormément"},
+            {en: "to follow", fr: "suivre"},
+            {en: "wind", fr: "vent"},
+            {en: "to blow", fr: "souffler"},
+            {en: "to bury", fr: "enterrer"},
+            {en: "to share", fr: "partager"},
+            {en: "straight away", fr: "immédiatement"},
+            {en: "straight on", fr: "tout droit"},
+            {en: "storm", fr: "tempête"},
+            {en: "close", fr: "proche"},
+            {en: "to ring", fr: "sonner"},
+            {en: "to dream", fr: "rêver"},
+            {en: "to feel", fr: "sentir"},
+            {en: "to take", fr: "prendre"},
+            {en: "to say", fr: "dire"},
+            {en: "to walk", fr: "marcher"},
+            {en: "to listen to", fr: "écouter"},
+            {en: "far", fr: "loin"},
+            {en: "to trust", fr: "croire"},
+            {en: "word", fr: "mot"},
+            {en: "to seek", fr: "chercher"},
+            {en: "mind", fr: "esprit"},
+            {en: "to matter", fr: "importer"},
+            {en: "nothing matters", fr: "rien n'importe"},
+            {en: "nothing else", fr: "rien d'autre"},
+            {en: "ours", fr: "le/la/les nôtres"},
+            {en: "myself", fr: "moi-même"},
+            {en: "view", fr: "point de vue"},
+            {en: "to care about", fr: "se préoccuper"},
+            {en: "to get on", fr: "s'en sortir"},
+            {en: "training", fr: "formation"},
+            {en: "flat", fr: "appartement"},
+            {en: "ill", fr: "malade, souffrant"},
+            {en: "to dare", fr: "oser"},
+            {en: "bridge", fr: "pont"},
+            {en: "track", fr: "piste"},
+            {en: "side", fr: "côté"},
+            {en: "to choose", fr: "choisir"},
+            {en: "riot", fr: "émeute"},
+            {en: "dream", fr: "rêve"},
+            {en: "nightmare", fr: "cauchemar"},
+            {en: "to get assaulted", fr: "se faire agresser"},
+            {en: "to draw", fr: "dégainer"},
+            {en: "blind", fr: "aveugle"},
+            {en: "dumb", fr: "muet"},
+            {en: "deaf", fr: "sourd"},
+            {en: "to print", fr: "imprimer"},
+            {en: "to get killed", fr: "se faire tuer"},
+            {en: "to hurt", fr: "faire mal, blesser"},
+            {en: "angry", fr: "en colère"},
+            {en: "scream", fr: "cri"},
+            {en: "to scream", fr: "crier"},
+            {en: "voice", fr: "voix"},
+            {en: "sleepless night", fr: "nuit blanche"},
+            {en: "to interfere", fr: "s'immiscer, se mêler de"},
+            {en: "tear", fr: "larme"},
+            {en: "to well up", fr: "monter (émotions)"},
+            {en: "to chill", fr: "glacer"},
+            {en: "crowd", fr: "foule"},
+            {en: "soul", fr: "âme"},
+            {en: "marital violence", fr: "violence conjugale"},
+            {en: "to starve", fr: "être affamé"},
+            {en: "to starve to death", fr: "mourir de faim"},
+            {en: "enough", fr: "assez"},
+            {en: "to feed", fr: "nourrir"},
+            {en: "so much/so many", fr: "tant, tellement"},
+            {en: "still", fr: "toujours, encore"},
+            {en: "to be aimed to", fr: "avoir pour but de"},
+            {en: "hate", fr: "haine"},
+            {en: "safe", fr: "en sécurité"},
+            {en: "soon", fr: "bientôt"},
+            {en: "amidst", fr: "parmi, au milieu de"},
+            {en: "to seek the truth", fr: "chercher la vérité"},
+            {en: "blinder", fr: "œillère"},
+            {en: "speechless", fr: "muet"},
+            {en: "to remove", fr: "ôter, enlever"},
+            {en: "alone", fr: "seul"},
+            {en: "somebody", fr: "quelqu'un"},
+            {en: "to answer", fr: "répondre"},
+            {en: "commitment", fr: "engagement"},
+            {en: "committed song/singer", fr: "chanson/chanteur engagé"},
+            {en: "fizzy/gassy", fr: "gazeux"},
+            {en: "to stand for", fr: "représenter"},
+            {en: "to recognize", fr: "reconnaître"},
+            {en: "recognizable", fr: "reconnaissable"},
+            {en: "worldwide", fr: "partout dans le monde"},
+            {en: "taste", fr: "goût"},
+            {en: "to sell", fr: "vendre"},
+            {en: "sale", fr: "vente"},
+            {en: "salesman", fr: "vendeur, commerçant"},
+            {en: "to begin", fr: "commencer"},
+            {en: "average", fr: "moyenne, moyen"},
+            {en: "loss", fr: "perte"},
+            {en: "to lose", fr: "perdre"},
+            {en: "last/next", fr: "dernier/prochain"},
+            {en: "death", fr: "mort"},
+            {en: "dead", fr: "mort"},
+            {en: "to die", fr: "mourir"},
+            {en: "within", fr: "en l'espace de, en moins de"},
+            {en: "to remind", fr: "rappeler"},
+            {en: "reminder", fr: "rappel"},
+            {en: "marketing", fr: "commercialisation"},
+            {en: "to mean", fr: "vouloir dire, signifier"},
+            {en: "to increase", fr: "augmenter"},
+            {en: "to decrease", fr: "diminuer"},
+            {en: "desperate", fr: "désespéré"},
+            {en: "arguably", fr: "on peut dire que"},
+            {en: "early", fr: "début"},
+            {en: "late", fr: "fin"},
+            {en: "threat", fr: "menace"},
+            {en: "to threaten", fr: "menacer"},
+            {en: "to go bust", fr: "faire faillite"},
+            {en: "plant/factory", fr: "usine"},
+            {en: "to build", fr: "construire"},
+            {en: "height", fr: "hauteur"},
+            {en: "to achieve", fr: "réaliser"},
+            {en: "to improve", fr: "améliorer"},
+            {en: "flavour", fr: "arôme"},
+            {en: "nowadays", fr: "de nos jours"},
+            {en: "to stay", fr: "rester"},
+            {en: "several", fr: "plusieurs"},
+            {en: "beginning", fr: "début"},
+            {en: "end", fr: "fin"},
+            {en: "to end", fr: "finir"},
+            {en: "to supply", fr: "fournir"},
+            {en: "brand", fr: "marque"},
+            {en: "to keep one's word", fr: "tenir parole"},
+            {en: "defining", fr: "majeur, caractéristique"},
+            {en: "thick", fr: "épais"},
+            {en: "thin", fr: "mince"},
+            {en: "underbrush", fr: "sous-bois"},
+            {en: "crunchy", fr: "croustillant"},
+            {en: "to rip", fr: "déchirer"},
+            {en: "to slink", fr: "avancer furtivement"},
+            {en: "to stalk a prey", fr: "traquer une proie"},
+            {en: "to pounce", fr: "bondir"},
+            {en: "flurry", fr: "rafale"},
+            {en: "claw", fr: "griffe"},
+            {en: "to disembowel", fr: "éventrer"},
+            {en: "roar", fr: "rugissement"},
+            {en: "fierce", fr: "redoutable"},
+            {en: "power supply", fr: "alimentation"},
+            {en: "band rejection filter", fr: "filtre à réjection de bande"},
+            {en: "to suppress", fr: "supprimer"},
+            {en: "transient", fr: "passage transitoire"},
+            {en: "in addition", fr: "de plus"},
+            {en: "to add", fr: "ajouter"},
+            {en: "linear", fr: "linéaire"},
+            {en: "component", fr: "composante, composant"},
+            {en: "thus", fr: "ainsi"},
+            {en: "inductors", fr: "inductances, bobines"},
+            {en: "such as", fr: "tel que"},
+            {en: "LRC-like", fr: "de type LRC"},
+            {en: "device", fr: "appareil, dispositif"},
+            {en: "capacitor", fr: "condensateur"},
+            {en: "resistor", fr: "résistance"},
+            {en: "quite", fr: "assez, plutôt"},
+            {en: "bulky", fr: "volumineux, encombrant"},
+            {en: "amplifier", fr: "amplificateur"},
+            {en: "to discover", fr: "découvrir"},
+            {en: "endless", fr: "sans fin, infini"},
+            {en: "to fall", fr: "tomber"},
+            {en: "to hear", fr: "entendre"},
+            {en: "to wonder", fr: "se demander"},
+            {en: "to call", fr: "appeler"},
+            {en: "to rob", fr: "voler, dérober"},
+            {en: "ship", fr: "navire"},
+            {en: "merchant ship", fr: "cargo"},
+            {en: "bottom", fr: "fond"},
+            {en: "bottomless pit", fr: "gouffre sans fond"},
+            {en: "Almighty", fr: "Tout-Puissant"},
+            {en: "forward/backward", fr: "en avant/en arrière"},
+            {en: "redemption", fr: "rédemption, rachat"},
+            {en: "to emancipate", fr: "émanciper, affranchir"},
+            {en: "slavery", fr: "esclavage"},
+            {en: "to free", fr: "libérer"},
+            {en: "to stand aside", fr: "se mettre à l'écart"},
+            {en: "to fulfill", fr: "réaliser, accomplir"},
+            {en: "none", fr: "aucun"}
+        ];
+
+        let customWords = [];
+        let currentDirection = 'en-fr'; // 'en-fr' ou 'fr-en'
+        let currentWord = null;
+        let showingAnswer = false;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let totalCount = 0;
+
+        // Combiner vocabulaire initial et mots personnalisés
+        function getAllVocabulary() {
+            return [...vocabulary, ...customWords];
+        }
+
+        function showTab(tabName) {
+            // Cacher tous les contenus d'onglets
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activer l'onglet et le contenu sélectionnés
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'add-word') {
+                displayCustomWords();
+            }
+        }
+
+        function setDirection(direction) {
+            currentDirection = direction;
+            
+            // Mettre à jour les boutons
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Réinitialiser le quiz
+            resetQuiz();
+        }
+
+        function getRandomWord() {
+            const allWords = getAllVocabulary();
+            return allWords[Math.floor(Math.random() * allWords.length)];
+        }
+
+        function startNewQuestion() {
+            currentWord = getRandomWord();
+            showingAnswer = false;
+            
+            const cardText = document.getElementById('card-text');
+            const card = document.getElementById('quiz-card');
+            
+            if (currentDirection === 'en-fr') {
+                cardText.textContent = currentWord.en;
+            } else {
+                cardText.textContent = currentWord.fr;
+            }
+            
+            card.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+            document.getElementById('quiz-buttons').style.display = 'none';
+        }
+
+        function revealAnswer() {
+            if (showingAnswer || !currentWord) return;
+            
+            showingAnswer = true;
+            const cardText = document.getElementById('card-text');
+            const card = document.getElementById('quiz-card');
+            
+            // Animation de retournement
+            card.classList.add('flip-animation');
+            
+            setTimeout(() => {
+                if (currentDirection === 'en-fr') {
+                    cardText.textContent = `${currentWord.en} → ${currentWord.fr}`;
+                } else {
+                    cardText.textContent = `${currentWord.fr} → ${currentWord.en}`;
+                }
+                card.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                cardText.style.color = 'white';
+                document.getElementById('quiz-buttons').style.display = 'flex';
+                card.classList.remove('flip-animation');
+            }, 300);
+        }
+
+        function markCorrect() {
+            correctCount++;
+            totalCount++;
+            updateScore();
+            setTimeout(nextQuestion, 500);
+        }
+
+        function markIncorrect() {
+            incorrectCount++;
+            totalCount++;
+            updateScore();
+            setTimeout(nextQuestion, 500);
+        }
+
+        function updateScore() {
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('incorrect-count').textContent = incorrectCount;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+
+        function nextQuestion() {
+            const cardText = document.getElementById('card-text');
+            cardText.style.color = '#333';
+            startNewQuestion();
+        }
+
+        function resetQuiz() {
+            correctCount = 0;
+            incorrectCount = 0;
+            totalCount = 0;
+            updateScore();
+            
+            document.getElementById('card-text').textContent = 'Cliquez pour commencer !';
+            document.getElementById('card-text').style.color = '#333';
+            document.getElementById('quiz-card').style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+            document.getElementById('quiz-buttons').style.display = 'none';
+            currentWord = null;
+            showingAnswer = false;
+        }
+
+        function addWord() {
+            const englishWord = document.getElementById('english-word').value.trim();
+            const frenchWord = document.getElementById('french-word').value.trim();
+            
+            if (!englishWord || !frenchWord) {
+                alert('Veuillez remplir les deux champs !');
+                return;
+            }
+            
+            const newWord = {
+                en: englishWord,
+                fr: frenchWord
+            };
+            
+            customWords.push(newWord);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('english-word').value = '';
+            document.getElementById('french-word').value = '';
+            
+            // Afficher le message de succès
+            const successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            // Mettre à jour la liste
+            displayCustomWords();
+        }
+
+        function deleteCustomWord(index) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce mot ?')) {
+                customWords.splice(index, 1);
+                displayCustomWords();
+            }
+        }
+
+        function displayCustomWords() {
+            const container = document.getElementById('custom-words-list');
+            
+            if (customWords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Aucun mot personnalisé ajouté.</p>';
+                return;
+            }
+            
+            container.innerHTML = customWords.map((word, index) => `
+                <div class="word-item">
+                    <div class="word-pair">
+                        <div class="word-en">${word.en}</div>
+                        <div class="word-fr">${word.fr}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteCustomWord(${index})">Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        // Permettre l'ajout de mots avec la touche Entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('english-word').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('french-word').focus();
+                }
+            });
+            
+            document.getElementById('french-word').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addWord();
+                }
+            });
+            
+            // Initialiser l'affichage des mots personnalisés
+            displayCustomWords();
+            
+            // Démarrer le premier quiz
+            document.getElementById('quiz-card').addEventListener('click', function() {
+                if (!currentWord) {
+                    startNewQuestion();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
